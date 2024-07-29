@@ -1,52 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Texto para Áudio</title>
-  <style>
-    #audioButton {
-      display: none;
-    }
-  </style>
+    <title>Gerador de Texto em Áudio</title>
 </head>
 <body>
-  <textarea id="inputText" placeholder="Insira seu texto aqui"></textarea>
-  <button onclick="convertToAudio()">Converter para Áudio</button>
-  <a id="audioLink" href="" download="audio.mp3">Baixar Áudio</a>
+    <h1>Gerador de Texto em Áudio</h1>
+    <textarea id="texto" rows="4" cols="50" placeholder="Digite o texto aqui"></textarea>
+    <br>
+    <button onclick="reproduzirAudio()">Reproduzir</button>
+    <button onclick="converterAudio()">Converter em Áudio</button>
 
-  <script>
-    function convertToAudio() {
-      var inputText = document.getElementById("inputText").value;
-      var audioLink = document.getElementById("audioLink");
+    <script>
+        function reproduzirAudio() {
+            const texto = document.getElementById("texto").value;
+            const utterance = new SpeechSynthesisUtterance(texto);
+            window.speechSynthesis.speak(utterance);
+        }
 
-      // Create an audio element
-      var audio = document.createElement("audio");
-
-      // Convert the text to speech using the SpeechSynthesis API
-      var synth = window.speechSynthesis;
-      var utterance = new SpeechSynthesisUtterance(inputText);
-
-      // Save the audio as a Blob object
-      var audioChunks = [];
-      utterance.onend = function() {
-        var blob = new Blob(audioChunks, {type: 'audio/mp3'});
-        var url = URL.createObjectURL(blob);
-
-        // Set the audio element source and display the audio button
-        audio.src = url;
-        audioLink.href = url;
-        audioLink.style.display = "block";
-      }
-
-      // Use the FileReader API to read audio chunks and add them to audioChunks array
-      var reader = new FileReader();
-      reader.onload = function(event) {
-        audioChunks.push(event.target.result);
-      }
-
-      // Start speech synthesis and capture audio chunks
-      synth.speak(utterance);
-      reader.readAsArrayBuffer(new Blob([new Uint8Array(audioChunks)]));
-    }
-  </script>
+        function converterAudio() {
+            const texto = document.getElementById("texto").value;
+            const utterance = new SpeechSynthesisUtterance(texto);
+            const audio = new Audio();
+            audio.src = URL.createObjectURL(new Blob([texto], {type: 'text/plain'}));
+            audio.controls = true;
+            audio.autoplay = true;
+            document.body.appendChild(audio);
+        }
+    </script>
 </body>
 </html>
