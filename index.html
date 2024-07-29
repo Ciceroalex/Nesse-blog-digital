@@ -1,15 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="script.js"></script>
+    <title>Text to Speech Converter</title>
+    <style>
+        #inputText {
+            width: 300px;
+            height: 100px;
+        }
+
+        #audioLink {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div>
-<textarea id="texto" rows="4" cols="50" placeholder="Digite seu texto aqui"></textarea>
-<button id="btnConverter">Converter</button>
-</div>
-<div id="audioPlayer">
-<audio controls id="player"></audio>
-</div>
+    <h1>Text to Speech Converter</h1>
+    <textarea id="inputText" placeholder="Digite seu texto aqui"></textarea>
+    <button onclick="speakText()">Falar</button>
+    <a href="#" id="audioLink" download>Download Áudio MP3</a>
+
+    <script>
+        function speakText() {
+            var text = document.getElementById("inputText").value;
+            var speech = new SpeechSynthesisUtterance();
+            speech.lang = "pt-BR";
+            speech.text = text;
+
+            speech.onend = function() {
+                var audioURL = URL.createObjectURL(new Blob([textToBlob(text)], {type: 'audio/mp3'}));
+                var link = document.getElementById("audioLink");
+                link.href = audioURL;
+                link.style.display = "inline";
+            };
+
+            speechSynthesis.speak(speech);
+        }
+
+        function textToBlob(text) {
+            var uInt8Array = new Uint8Array(text.length);
+            for (var i = 0; i < text.length; ++i) {
+                uInt8Array[i] = text.charCodeAt(i);
+            }
+            return uInt8Array;
+        }
+    </script>
 </body>
 </html>
