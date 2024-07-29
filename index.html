@@ -1,30 +1,117 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Gerador de Texto em Áudio</title>
-</head>
-<body>
-    <h1>Gerador de Texto em Áudio</h1>
-    <textarea id="texto" rows="4" cols="50" placeholder="Digite o texto aqui"></textarea>
-    <br>
-    <button onclick="reproduzirAudio()">Reproduzir</button>
-    <button onclick="converterAudio()">Converter em Áudio</button>
-
-    <script>
-        function reproduzirAudio() {
-            const texto = document.getElementById("texto").value;
-            const utterance = new SpeechSynthesisUtterance(texto);
-            window.speechSynthesis.speak(utterance);
+    <meta charset="UTF-8">
+    <title>Text to Speech Conversion</title>
+    <style>
+        ::selection {
+            background-color: #a1cef1;
+            color: #fff;
         }
 
-        function converterAudio() {
-            const texto = document.getElementById("texto").value;
-            const utterance = new SpeechSynthesisUtterance(texto);
-            const audio = new Audio();
-            audio.src = URL.createObjectURL(new Blob([texto], {type: 'text/plain'}));
-            audio.controls = true;
-            audio.autoplay = true;
-            document.body.appendChild(audio);
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        textarea {
+            width: 500px;
+            height: 150px;
+            font-size: 16px;
+            padding: 10px;
+            margin: 10px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            resize: none;
+        }
+
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #audio-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Conversão de Texto em Fala</h1>
+
+    <textarea id="input-text" placeholder="Digite seu texto aqui"></textarea>
+
+    <div id="audio-controls">
+        <button id="play-button" onclick="playText()">Reproduzir</button>
+        <button id="convert-button" onclick="convertToAudio()">Converter em Áudio MP3</button>
+    </div>
+
+    <audio id="audio" controls></audio>
+
+    <script>
+        function playText() {
+            const inputText = document.getElementById('input-text').value;
+
+            if (inputText.trim() !== '') {
+                const speechUtterance = new SpeechSynthesisUtterance(inputText);
+                speechSynthesis.speak(speechUtterance);
+            }
+        }
+
+        function convertToAudio() {
+            const inputText = document.getElementById('input-text').value;
+
+            if (inputText.trim() !== '') {
+                const utterance = new SpeechSynthesisUtterance(inputText);
+                const audio = document.getElementById('audio');
+
+                utterance.onend = function() {
+                    const blob = new Blob([this.response], { type: 'audio/mp3' });
+                    const audioURL = URL.createObjectURL(blob);
+                    audio.src = audioURL;
+                };
+
+                fetch('path/to/convert/script.php', {
+                    method: 'POST',
+                    body: JSON.stringify({ text: inputText }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const audioURL = URL.createObjectURL(blob);
+                        audio.src = audioURL;
+                    });
+            }
         }
     </script>
 </body>
