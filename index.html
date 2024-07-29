@@ -1,48 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Text to Speech Converter</title>
-    <style>
-        #inputText {
-            width: 300px;
-            height: 100px;
-        }
-
-        #audioLink {
-            display: none;
-        }
-    </style>
+  <title>Texto para Áudio</title>
+  <style>
+    #audioButton {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <h1>Text to Speech Converter</h1>
-    <textarea id="inputText" placeholder="Digite seu texto aqui"></textarea>
-    <button onclick="speakText()">Falar</button>
-    <a href="#" id="audioLink" download>Download Áudio MP3</a>
+  <textarea id="inputText" placeholder="Insira seu texto aqui"></textarea>
+  <button onclick="convertToAudio()">Converter para Áudio</button>
+  <a id="audioLink" href="" download="audio.mp3">Baixar Áudio</a>
 
-    <script>
-        function speakText() {
-            var text = document.getElementById("inputText").value;
-            var speech = new SpeechSynthesisUtterance();
-            speech.lang = "pt-BR";
-            speech.text = text;
+  <script>
+    function convertToAudio() {
+      var inputText = document.getElementById("inputText").value;
+      var audioLink = document.getElementById("audioLink");
 
-            speech.onend = function() {
-                var audioURL = URL.createObjectURL(new Blob([textToBlob(text)], {type: 'audio/mp3'}));
-                var link = document.getElementById("audioLink");
-                link.href = audioURL;
-                link.style.display = "inline";
-            };
+      // Create an audio element
+      var audio = document.createElement("audio");
 
-            speechSynthesis.speak(speech);
-        }
+      // Convert the text to speech using the SpeechSynthesis API
+      var synth = window.speechSynthesis;
+      var utterance = new SpeechSynthesisUtterance(inputText);
 
-        function textToBlob(text) {
-            var uInt8Array = new Uint8Array(text.length);
-            for (var i = 0; i < text.length; ++i) {
-                uInt8Array[i] = text.charCodeAt(i);
-            }
-            return uInt8Array;
-        }
-    </script>
+      // Save the audio as a Blob object
+      var audioChunks = [];
+      utterance.onend = function() {
+        var blob = new Blob(audioChunks, {type: 'audio/mp3'});
+        var url = URL.createObjectURL(blob);
+
+        // Set the audio element source and display the audio button
+        audio.src = url;
+        audioLink.href = url;
+        audioLink.style.display = "block";
+      }
+
+      // Use the FileReader API to read audio chunks and add them to audioChunks array
+      var reader = new FileReader();
+      reader.onload = function(event) {
+        audioChunks.push(event.target.result);
+      }
+
+      // Start speech synthesis and capture audio chunks
+      synth.speak(utterance);
+      reader.readAsArrayBuffer(new Blob([new Uint8Array(audioChunks)]));
+    }
+  </script>
 </body>
 </html>
